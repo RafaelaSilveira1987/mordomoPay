@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MordomoPay - Controle Financeiro Cristão</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        .debug-button {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background: #1e3a8a;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 24px;
+            z-index: 9998;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+        .debug-button:hover {
+            background: #1e2f6b;
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <button class="debug-button" onclick="logger.showDebugPanel()" title="Abrir Painel de Debug">🐛</button>
+    <div id="app">
+        <!-- LOGIN PAGE -->
+        <div id="login-page" class="auth-container page active">
+            <div class="auth-card">
+                <h1>💰 MordomoPay</h1>
+                <p style="text-align: center; color: var(--muted); margin-bottom: var(--spacing-xl);">Gestão Cristã de Finanças</p>
+                
+                <form id="login-form">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="login-email" placeholder="seu@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Senha</label>
+                        <input type="password" id="login-password" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Entrar</button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>Não tem conta? <a href="#" onclick="showRegister()">Criar conta</a></p>
+                    <p style="margin-top: var(--spacing-md); text-align: center; font-size: 12px;">
+                        <a href="#" onclick="logger.showDebugPanel(); return false;" style="color: var(--muted);">🐛 Debug</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- REGISTER PAGE -->
+        <div id="register-page" class="auth-container page" style="display: none;">
+            <div class="auth-card">
+                <h1>💰 MordomoPay</h1>
+                <p style="text-align: center; color: var(--muted); margin-bottom: var(--spacing-xl);">Criar Conta</p>
+                
+                <form id="register-form">
+                    <div class="form-group">
+                        <label>Nome</label>
+                        <input type="text" id="register-name" placeholder="Seu nome" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="register-email" placeholder="seu@email.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Senha</label>
+                        <input type="password" id="register-password" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Criar Conta</button>
+                </form>
+
+                <div class="auth-footer">
+                    <p>Já tem conta? <a href="#" onclick="showLogin()">Entrar</a></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN APP -->
+        <div id="main-app" style="display: none; width: 100%;">
+            <!-- SIDEBAR -->
+            <aside class="sidebar">
+                <div class="logo">
+                    <span>💰</span>
+                    <h1>MordomoPay</h1>
+                </div>
+                
+                <nav class="nav-menu">
+                    <button class="nav-item active" data-page="dashboard">
+                        <span class="icon">📊</span> Dashboard
+                    </button>
+                    <button class="nav-item" data-page="transactions">
+                        <span class="icon">💳</span> Transações
+                    </button>
+                    <button class="nav-item" data-page="goals">
+                        <span class="icon">🎯</span> Metas
+                    </button>
+                    <button class="nav-item" data-page="tithe">
+                        <span class="icon">🙏</span> Dízimos
+                    </button>
+                    <button class="nav-item" data-page="tips">
+                        <span class="icon">💡</span> Dicas
+                    </button>
+                    <button class="nav-item" data-page="reports">
+                        <span class="icon">📈</span> Relatórios
+                    </button>
+                </nav>
+
+                <div class="sidebar-footer">
+                    <button class="btn-logout" onclick="logout()">
+                        <span>🚪</span> Sair
+                    </button>
+                </div>
+            </aside>
+
+            <!-- MAIN CONTENT -->
+            <div class="main-content">
+                <!-- HEADER -->
+                <header class="header">
+                    <div class="header-left">
+                        <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+                        <h2 class="page-title" id="page-title">Dashboard</h2>
+                    </div>
+                    <div class="header-right">
+                        <span class="user-info" id="user-info">Usuário</span>
+                    </div>
+                </header>
+
+                <!-- CONTENT -->
+                <div class="content">
+                    <!-- DASHBOARD PAGE -->
+                    <div id="dashboard-page" class="page active">
+                        <div class="grid grid-4">
+                            <div class="stat-card" style="border-left-color: var(--success);">
+                                <div class="stat-label">Receitas</div>
+                                <div class="stat-value" id="stat-income">R$ 0,00</div>
+                            </div>
+                            <div class="stat-card" style="border-left-color: var(--danger);">
+                                <div class="stat-label">Despesas</div>
+                                <div class="stat-value" id="stat-expense">R$ 0,00</div>
+                            </div>
+                            <div class="stat-card" style="border-left-color: var(--primary);">
+                                <div class="stat-label">Saldo</div>
+                                <div class="stat-value" id="stat-balance">R$ 0,00</div>
+                            </div>
+                            <div class="stat-card" style="border-left-color: var(--accent);">
+                                <div class="stat-label">Saúde Financeira</div>
+                                <div class="stat-value" id="stat-health">0%</div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-2" style="margin-top: var(--spacing-xl);">
+                            <div class="card">
+                                <h3>Metas Ativas</h3>
+                                <div id="dashboard-goals"></div>
+                            </div>
+                            <div class="card">
+                                <h3>Versículo do Dia</h3>
+                                <div id="dashboard-verse"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TRANSACTIONS PAGE -->
+                    <div id="transactions-page" class="page">
+                        <div class="grid grid-3" style="margin-bottom: var(--spacing-xl);">
+                            <div class="stat-card" style="border-left-color: var(--success);">
+                                <div class="stat-label">Total de Entradas</div>
+                                <div class="stat-value" id="trans-income">R$ 0,00</div>
+                            </div>
+                            <div class="stat-card" style="border-left-color: var(--danger);">
+                                <div class="stat-label">Total de Saídas</div>
+                                <div class="stat-value" id="trans-expense">R$ 0,00</div>
+                            </div>
+                            <div class="stat-card" style="border-left-color: var(--primary);">
+                                <div class="stat-label">Saldo</div>
+                                <div class="stat-value" id="trans-balance">R$ 0,00</div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
+                                <h3 style="margin: 0;">Transações</h3>
+                                <button class="btn btn-primary btn-sm" onclick="openTransactionModal()">+ Nova Transação</button>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                                <div class="form-group">
+                                    <label>Tipo</label>
+                                    <select id="trans-filter-type" onchange="filterTransactions()">
+                                        <option value="">Todas</option>
+                                        <option value="entrada">Entradas</option>
+                                        <option value="saida">Saídas</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Categoria</label>
+                                    <select id="trans-filter-category" onchange="filterTransactions()">
+                                        <option value="">Todas</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style="overflow-x: auto;">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Descrição</th>
+                                            <th>Categoria</th>
+                                            <th>Data</th>
+                                            <th>Valor</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="transactions-list"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GOALS PAGE -->
+                    <div id="goals-page" class="page">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-xl);">
+                            <h2 style="margin: 0;">Metas Financeiras</h2>
+                            <button class="btn btn-primary" onclick="openGoalModal()">+ Nova Meta</button>
+                        </div>
+                        <div id="goals-list" class="grid grid-2"></div>
+                    </div>
+
+                    <!-- TITHE PAGE -->
+                    <div id="tithe-page" class="page">
+                        <div class="grid grid-2">
+                            <div class="card">
+                                <h3>Calculadora de Dízimo</h3>
+                                <div class="form-group">
+                                    <label>Renda Mensal (R$)</label>
+                                    <input type="number" id="tithe-income" placeholder="5200" step="0.01">
+                                </div>
+                                <div class="form-group">
+                                    <label>Percentual (%)</label>
+                                    <input type="number" id="tithe-percentage" value="10" step="0.01">
+                                </div>
+                                <div style="background: var(--light-bg); padding: var(--spacing-lg); border-radius: var(--radius); margin-bottom: var(--spacing-lg);">
+                                    <div class="stat-label">Dízimo Calculado</div>
+                                    <div class="stat-value" id="tithe-calculated">R$ 0,00</div>
+                                </div>
+                                <button class="btn btn-primary" style="width: 100%;" onclick="registerTithe()">Registrar Dízimo</button>
+                            </div>
+
+                            <div class="card">
+                                <h3>Resumo de Dízimos</h3>
+                                <div class="stat-card" style="border-left-color: var(--primary); margin-bottom: var(--spacing-lg);">
+                                    <div class="stat-label">Total de Dízimos</div>
+                                    <div class="stat-value" id="tithe-total">R$ 0,00</div>
+                                </div>
+                                <div class="stat-card" style="border-left-color: var(--accent);">
+                                    <div class="stat-label">Total de Ofertas</div>
+                                    <div class="stat-value" id="offering-total">R$ 0,00</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card" style="margin-top: var(--spacing-xl);">
+                            <h3>Histórico de Dízimos e Ofertas</h3>
+                            <div id="tithe-history"></div>
+                        </div>
+                    </div>
+
+                    <!-- TIPS PAGE -->
+                    <div id="tips-page" class="page">
+                        <div style="margin-bottom: var(--spacing-xl);">
+                            <h2 style="margin-bottom: var(--spacing-lg);">Dicas de Saúde Financeira</h2>
+                            <div id="tips-filters" style="display: flex; gap: var(--spacing-md); flex-wrap: wrap;"></div>
+                        </div>
+                        <div id="tips-list" class="grid grid-2"></div>
+                    </div>
+
+                    <!-- REPORTS PAGE -->
+                    <div id="reports-page" class="page">
+                        <div style="margin-bottom: var(--spacing-xl);">
+                            <h2 style="margin-bottom: var(--spacing-lg);">Relatórios Financeiros</h2>
+                            <div class="form-group">
+                                <label>Período</label>
+                                <select id="report-period" onchange="updateReport()">
+                                    <option value="1">Último Mês</option>
+                                    <option value="3">Últimos 3 Meses</option>
+                                    <option value="6">Últimos 6 Meses</option>
+                                    <option value="12">Último Ano</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-4" style="margin-bottom: var(--spacing-xl);">
+                            <div class="stat-card" style="border-left-color: var(--success);">
+                                <div class="stat-label">Renda Total</div>
+                                <div class="stat-value" id="report-income">R$ 0,00</div>
+                            </div>
+                            <div class="stat-card" style="border-left-color: var(--danger);">
+                                <div class="stat-label">Despesas Totais</div>
+                                <div class="stat-value" id="report-expense">R$ 0,00</div>
+                            </div>
+                            <div class="stat-card" style="border-left-color: var(--primary);">
+                                <div class="stat-label">Saldo Total</div>
+                                <div class="stat-value" id="report-balance">R$ 0,00</div>
+                            </div>
+                            <div class="stat-card" style="border-left-color: var(--accent);">
+                                <div class="stat-label">Dízimos</div>
+                                <div class="stat-value" id="report-tithe">R$ 0,00</div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-2">
+                            <div class="card">
+                                <h3>Distribuição de Despesas</h3>
+                                <canvas id="expenseChart"></canvas>
+                            </div>
+                            <div class="card">
+                                <h3>Histórico Mensal</h3>
+                                <div id="monthly-history"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAIS -->
+
+    <!-- MODAL: TRANSAÇÃO -->
+    <div id="transaction-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Nova Transação</h3>
+                <button class="modal-close" onclick="closeTransactionModal()">×</button>
+            </div>
+            <form id="transaction-form" class="modal-body">
+                <input type="hidden" id="transaction-id">
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <input type="text" id="transaction-description" placeholder="Ex: Salário" required>
+                </div>
+                <div class="form-group">
+                    <label>Tipo</label>
+                    <select id="transaction-type" required>
+                        <option value="">Selecione...</option>
+                        <option value="entrada">Entrada</option>
+                        <option value="saida">Saída</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <select id="transaction-category" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Valor (R$)</label>
+                    <input type="number" id="transaction-amount" placeholder="0,00" step="0.01" required>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeTransactionModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveTransaction()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: META -->
+    <div id="goal-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Nova Meta</h3>
+                <button class="modal-close" onclick="closeGoalModal()">×</button>
+            </div>
+            <form id="goal-form" class="modal-body">
+                <input type="hidden" id="goal-id">
+                <div class="form-group">
+                    <label>Nome da Meta</label>
+                    <input type="text" id="goal-name" placeholder="Ex: Fundo de Emergência" required>
+                </div>
+                <div class="form-group">
+                    <label>Valor Alvo (R$)</label>
+                    <input type="number" id="goal-target" placeholder="5000,00" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <select id="goal-category" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Data Limite</label>
+                    <input type="date" id="goal-deadline" required>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeGoalModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="saveGoal()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="js/logger.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/supabase-client.js"></script>
+    <script src="js/auth-phone.js"></script>
+    <script src="js/auth-helpers.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
