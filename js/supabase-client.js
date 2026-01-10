@@ -11,6 +11,18 @@ class SupabaseService {
         this.client = supabase.createClient(url, anonKey);
     }
 
+   async getUserByPhone(phone) {
+    const { data, error } = await this.client
+        .from('usuarios')
+        .select('*')
+        .eq('celular', phone)
+        .limit(1)
+        .single();
+
+    if (error) return null;
+    return data;
+}
+
     /* ========== LOGIN POR TELEFONE ========== */
 
     async loginWithPhone(phone, password) {
