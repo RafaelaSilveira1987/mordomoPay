@@ -7,6 +7,7 @@ let app = null;
 class MordomoPayApp {
     constructor() {
         this.user = null;
+        this.supabase = window.supabaseClient;
         this.init();
     }
 
@@ -18,15 +19,17 @@ class MordomoPayApp {
     attachEvents() {
         const loginForm = document.getElementById('login-form');
         if (loginForm) {
-            loginForm.addEventListener('submit', e => this.handleLogin(e));
+            loginForm.addEventListener('submit', (e) => this.handleLogin(e));
         }
     }
+
+    /* ========== LOGIN ========== */
 
     async handleLogin(e) {
         e.preventDefault();
 
-        const phoneRaw = document.getElementById('login-phone').value;
-        const password = document.getElementById('login-password').value;
+        const phoneRaw = document.getElementById('login-phone')?.value;
+        const password = document.getElementById('login-password')?.value;
 
         if (!phoneRaw || !password) {
             this.notify('Informe celular e senha', 'error');
@@ -36,22 +39,14 @@ class MordomoPayApp {
         const phone = phoneRaw.replace(/\D/g, '');
 
         try {
-            const { data: users, error } = await supabaseClient
-                .from('usuarios')
-                .select('*')
-                .eq('celular', phone)
-                .limit(1);
+            const user = await this.supabase.getUserByPhone(phone);
 
-            if (error) throw error;
-
-            if (!users || users.length === 0) {
+            if (!user) {
                 this.notify('Usuário não encontrado', 'error');
                 return;
             }
 
-            const user = users[0];
-
-            // ⚠️ senha em texto puro (TEMPORÁRIO)
+            // ⚠️ senha em texto puro (APENAS PARA TESTES)
             if (user.senha !== password) {
                 this.notify('Senha incorreta', 'error');
                 return;
@@ -64,7 +59,7 @@ class MordomoPayApp {
             };
 
             localStorage.setItem(
-                'mordomopay_user',
+                CONFIG.STORAGE_USER,
                 JSON.stringify(this.user)
             );
 
@@ -72,10 +67,12 @@ class MordomoPayApp {
             this.notify('Login realizado com sucesso');
 
         } catch (err) {
-            console.error(err);
+            console.error('[LOGIN ERROR]', err);
             this.notify('Erro ao realizar login', 'error');
         }
     }
+
+    /* ========== UI ========== */
 
     showLoginPage() {
         document.getElementById('login-page').style.display = 'flex';
@@ -85,25 +82,33 @@ class MordomoPayApp {
     showMainApp() {
         document.getElementById('login-page').style.display = 'none';
         document.getElementById('main-app').style.display = 'block';
-        document.getElementById('user-info').textContent =
-            this.user.nome + ' (' + this.user.celular + ')';
+
+        const userInfo = document.getElementById('user-info');
+        if (userInfo && this.user) {
+            userInfo.textContent =
+                `${this.user.nome} (${this.user.celular})`;
+        }
     }
 
     logout() {
-        localStorage.removeItem('mordomopay_user');
+        localStorage.removeItem(CONFIG.STORAGE_USER);
+        localStorage.removeItem(CONFIG.STORAGE_SESSION);
         location.reload();
     }
 
     notify(msg, type = 'success') {
-        alert(msg); // simples e funcional para testes
+        // simples e funcional para testes
+        alert(msg);
     }
 }
 
-/* ========= GLOBAL ========= */
+/* ========== GLOBAL HELPERS ========== */
 
 function logout() {
     if (app) app.logout();
 }
+
+/* ========== INIT ========== */
 
 document.addEventListener('DOMContentLoaded', () => {
     app = new MordomoPayApp();
