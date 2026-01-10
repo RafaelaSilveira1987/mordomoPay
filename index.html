@@ -63,32 +63,41 @@
         </div>
 
         <!-- REGISTER PAGE -->
-        <div id="register-page" class="auth-container page" style="display: none;">
-            <div class="auth-card">
-                <h1>💰 MordomoPay</h1>
-                <p style="text-align: center; color: var(--muted); margin-bottom: var(--spacing-xl);">Criar Conta</p>
-                
-                <form id="register-form">
-                    <div class="form-group">
-                        <label>Nome</label>
-                        <input type="text" id="register-name" placeholder="Seu nome" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" id="register-email" placeholder="seu@email.com" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Senha</label>
-                        <input type="password" id="register-password" placeholder="••••••••" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Criar Conta</button>
-                </form>
+        <!-- REGISTER PAGE -->
+<div id="register-page" class="auth-container page">
+    <div class="auth-card">
+        <h1>💰 MordomoPay</h1>
+        <p style="text-align:center;color:var(--muted);margin-bottom:2rem">
+            Criar Conta
+        </p>
 
-                <div class="auth-footer">
-                    <p>Já tem conta? <a href="#" onclick="showLogin()">Entrar</a></p>
-                </div>
+        <form id="register-form">
+            <div class="form-group">
+                <label>Nome</label>
+                <input type="text" id="register-name" required>
             </div>
+
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="register-email" required>
+            </div>
+
+            <div class="form-group">
+                <label>Senha</label>
+                <input type="password" id="register-password" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Criar Conta</button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Já tem conta?
+                <a href="#" onclick="showLogin();return false;">Entrar</a>
+            </p>
         </div>
+    </div>
+</div>
+
 
         <!-- MAIN APP -->
         <div id="main-app" style="display: none; width: 100%;">
