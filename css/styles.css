@@ -230,7 +230,7 @@ body {
 }
 
 .page.active {
-    display: flex;
+    display: block;
 }
 
 /* ============================================
